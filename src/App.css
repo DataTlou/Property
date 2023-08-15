@@ -14,7 +14,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color:white;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -36,3 +36,25 @@
     transform: rotate(360deg);
   }
 }
+
+.chat 
+{
+  background-color:white;
+  color: black;
+  width: 500px;
+  padding-left: 80px;
+}
+
+.form-card
+{
+  border: 1px solid blue;
+  width: 250px;
+  height: 200px;
+}
+
+.result-card
+{
+  width: 800px;
+  
+}
+
