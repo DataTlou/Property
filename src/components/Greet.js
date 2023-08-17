@@ -113,7 +113,7 @@ function Greet()
             <Space>
                 <div>
                     <ul>
-                        <Card> Name: { info.name} <br/> Surname: {info.surname} <br/> Cell Number: { info.cellnumber}</Card>      
+                        <Card>Name: { info.name} <br/> Surname: {info.surname} <br/> Cell Number: { info.cellnumber}</Card>      
                    </ul>
                 </div>
             </Space>

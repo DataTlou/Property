@@ -39,7 +39,7 @@ const Function = () =>
                 <Form.Item
                 name={'name'}
                 label={'Name'}>
-                    <Input/>
+                    <Input placeholder='Name' />
                 </Form.Item>
                 <Form.Item
                 name={'surname'}
