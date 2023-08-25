@@ -8,11 +8,14 @@ import Function from "./components/Function";
 import Search from './components/Search'
 import { Button } from 'antd';
 import React from 'react';
+import Edit from "./components/Edit";
 
 const App: React.FC = () =>
 {
+  
   return(
   <div className="App">
+    
     <Router>
         <header className="App-header">
           {/* <img src={logo} className="App-logo" alt="logo" /> */}

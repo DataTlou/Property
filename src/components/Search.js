@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Card, Table, Space } from "antd";
+import { Form, Input, Button, Card, Table, Space, Result } from "antd";
 import axios from "axios";
-import { render } from "@testing-library/react";
+import Edit from "./Edit";
+import { Link, useNavigate } from "react-router-dom";
 
 const Search = () => {
   const [data, setData] = useState([]);
-  const [found, setFound] = useState(0);
-  const [code, setCode] = useState(0);
+  const [StatCode, setStatCode] = useState(0);
   const { Column } = Table;
+  const [isEditable, setIsEditable] = useState(false);
+
   const findName = async (value) => {
     try {
       const res = await axios.get(
@@ -19,99 +21,120 @@ const Search = () => {
       console.log(value["username"]);
       console.log(res.data);
       setData(res.data);
-      setFound(res.status);
-      setCode(res.status);
+      setStatCode(res.status);
       console.log(`http://localhost:3000/users/get/name/${value["username"]}`);
     } catch (error) {
-      setFound(error.response.data.statusCode);
-      console.log(error.response.data.statusCode)
+      setStatCode(error.response.data.statusCode);
     }
   };
-//   useEffect(() => {
-//     if (found) {
-//       const getUser = async () => {
-//         try {
-//           console.log("done converting");
-//           setFound(1);
-//           if (data === null || typeof data !== "object") {
-//             throw new Error("Invalid JSON data");
-//           }
-//         } catch (error) {
-//           console.error("Error fetching2 data: " + data.name, error);
-//         }
-//       };
-//       getUser();
-//     }
-//   }, [found]);
-
+  const HandleEditButton = () => {
+    setStatCode((prevstat) => {
+      if (prevstat === 200) {
+        return 1;
+      } 
+    });
+    setIsEditable((currentEditStatus) => {
+      if (currentEditStatus === false) {
+        return true;
+      }
+    });
+  };
   return (
     <div>
-      <Form onFinish={findName}>
-        <Form.Item
-          label="Username:"
-          name={"username"}
-          style={{
-            outerWidth: 200,
-            width: 200,
-            marginLeft: 0,
-            marginRight: 130,
-          }}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item>
-          <Button htmlType="submit" loading={data}>
-            Search
-          </Button>
-        </Form.Item>
-      </Form>
-      { found === 200  &&
-      <Card >
-        <Table dataSource={[data]} pagination={false}>
-          <Column title='Name' dataIndex={"name"} render={() => {
-              if (data["name"].length === 0) {
-                return <p>N/A</p>;
-              } else {
-                return data["name"];
-              }
-            }}/>
-          <Column title='Surname' dataIndex={"surname"} render={() => {
-              if (data["surname"].length === 0) {
-                return <p>N/A</p>;
-              } else {
-                return data["surname"];
-              }
-            }}/>
-          <Column
-            title='Cellphone Number'
-            dataIndex={"cellnumber"}
-            render={() => {
-              if (data["cellnumber"].length === 0) {
-                return <p>N/A</p>;
-              } else {
-                return data["cellnumber"];
-              }
+      {StatCode === 0 && !isEditable && (
+        <Form onFinish={findName}>
+          <Form.Item
+            label="Username:"
+            name={"username"}
+            style={{
+              outerWidth: 200,
+              width: 200,
+              marginLeft: 0,
+              marginRight: 130,
             }}
-          />
-          <Column title='Action'
-            render={() => {
-              if (data.length !== 0) {
-                return (
-                  <Space>
-                    <a>Edit</a>
-                  </Space>
-                );
-              } else {
-                return <Space></Space>;
-              }
-            }}
-          />
-        </Table>
-      </Card>}
-      {found == 404 &&
-      <Card>
-        <p>User is not found</p>
-        </Card>}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item>
+            <Button htmlType="submit" loading={data}>
+              Search
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+
+      {StatCode === 200 && !isEditable && (
+        <Card>
+          <Table dataSource={[data]} pagination={false}>
+            <Column
+              key={"id"}
+              title="Name"
+              dataIndex={"name"}
+              render={() => {
+                if (data["name"].length === 0) {
+                  return <p>N/A</p>;
+                } else {
+                  return <p>{data["name"]}</p>;
+                }
+              }}
+            />
+            <Column
+              title="Surname"
+              dataIndex={"surname"}
+              render={() => {
+                if (data["surname"].length === 0) {
+                  return <p>N/A</p>;
+                } else {
+                  return (
+                    <p>{data["surname"]}</p>
+                  );
+                }
+              }}
+            />
+            <Column
+              title="Cellphone Number"
+              dataIndex={"cellnumber"}
+              render={() => {
+                if (data["cellnumber"].length === 0) {
+                  return <p>N/A</p>;
+                } else {
+                  return (
+                    <p>{data["cellnumber"]}</p>
+                  );
+                }
+              }}
+            />
+            <Column
+              title="Action"
+              render={() => {
+                if (data.length !== 0) {
+                  return (
+                    <Space>
+                        <a onClick={HandleEditButton}>Edit</a>
+                      
+                    </Space>
+                  );
+                } else {
+                  return <Space></Space>;
+                }
+              }}
+            />
+          </Table>
+        </Card>
+      )}
+      {StatCode === 404 && !isEditable && (
+        <Result
+          status={404}
+          title={"Search Results"}
+          subTitle={"The user is not found"}
+        />
+      )}
+      {StatCode === 1 && isEditable && (
+        <Card>
+          <h1>Edit User information</h1>
+          <Edit datapressed={data} />
+        </Card>
+      )}
     </div>
   );
 };
