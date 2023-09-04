@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Checkbox } from "antd";
+import React, { useState } from "react";
+import { Form, Input, Button } from "antd";
 import axios from "axios";
 const Edit = ({ datapressed }) => {
   // form
   const [form] = Form.useForm();
-
+  const [EnableButton, setEnableButton] = useState(false);
   const [FormData, setFormData] = useState({
     name: `${datapressed["name"]}`,
     surname: `${datapressed["surname"]}`,
@@ -23,11 +23,32 @@ const Edit = ({ datapressed }) => {
         (FormData.surname !== datapressed["surname"]) |
         (FormData.cellnumber !== datapressed["cellnumber"]))
     ) {
-      console.log("Changes made");
+      
       try
       {
-        const post = await axios.put(`http://localhost:3000/users/update/${datapressed["id"]}`, FormData)
-        console.log(post.data)
+        
+          if(FormData.cellnumber[0] === "0" && FormData.cellnumber.length < 10)
+          {
+            console.log("The length of cellnumber is less than 10.")
+          }
+          else if(FormData.cellnumber[0] === "+" && FormData.cellnumber.length < 12)
+          {
+            console.log("The length of cellnumber is less than 12.")
+          }
+          else if(FormData.cellnumber[0] === "+" && FormData.cellnumber.length > 12)
+          {
+            console.log("The length of cellnumber is more than 12.")
+          }
+          else if(FormData.cellnumber[0] === "0" && FormData.cellnumber.length > 10)
+          {
+            console.log("The length of cellnumber is more than 10.")
+          }
+          else
+          {
+            const post = await axios.put(`http://localhost:3000/users/update/${datapressed["id"]}`, FormData);
+            console.log(post.data);
+            console.log("Changes made.");
+          }
       }
       catch(error)
       {
@@ -40,31 +61,30 @@ const Edit = ({ datapressed }) => {
     }
     
   };
-
+  const ButtonDisability = () =>
+  {
+    if(FormData === datapressed){return false}else{return true}
+  }
   return (
-    <Form onFinish={Update} form={form}>
+    <Form onFinish={Update} form={form} initialValues={FormData}>
         <Form.Item label={"Name:"}name="name">
           <Input
-            disabled={false}
-              defaultValue={FormData["name"]}
             onChange={HandleChange}
           />
         </Form.Item>
       
         <Form.Item label={"Surname:"}name="surname">
           <Input
-            defaultValue={FormData["surname"]}
             onChange={HandleChange}
           />
         </Form.Item>
       
         <Form.Item label={"Cellphone Number:"}name="cellnumber">
           <Input
-            defaultValue={FormData["cellnumber"]}
             onChange={HandleChange}
           />
         </Form.Item>
-      <Button htmlType="submit" onSubmit={Update}>
+      <Button htmlType="submit" onSubmit={Update} disabled={EnableButton}>
         Save
       </Button>
     </Form>

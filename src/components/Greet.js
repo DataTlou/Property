@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {Card, Space, Grid, Divider, Row, Col} from 'antd'
+import axios from 'axios';
 
 function Greet() 
 {
@@ -9,16 +10,23 @@ function Greet()
     const [info, setInfo] = useState([]);
     const [userloaded, setUserLoaded] = useState(false);
     
-    const seeUsers = () => {
-        fetch('http://localhost:3000/users/get/all', { mode: 'cors' })
-            .then(res => res.json())
-            .then(json => {
-                setIsLoaded(true);
-                setData(json);
-            })
-            .catch((error) => {
-                console.error("Error is: ", error);
-            });
+    const  seeUsers = async () => {
+        const reponse = await axios.get('http://localhost:3000/users/get/all')
+        console.log(reponse)
+        console.log(reponse.status)
+        setIsLoaded(true)
+        setData(reponse)
+        // fetch('http://localhost:3000/users/get/all', { mode: 'cors' })
+        //     .then(res => {res.json()
+        //         console.log(res)})
+            
+        //     .then(json => {
+        //         setIsLoaded(true);
+        //         setData(json);
+        //     })
+        //     .catch((error) => {
+        //         console.error("Error is: ", error);
+        //     });
     };
 
     const getIndiUser = async (id) =>
@@ -45,11 +53,13 @@ function Greet()
         if (isLoaded) {
             const fetchData = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3000/users/get/all`, { mode: 'cors' });
-                    const jsonData = await response.json();
-                    setData(jsonData);
+                    const reponse = await axios.get('http://localhost:3000/users/get/all')
+                    console.log(reponse)
+                    console.log(reponse.status)
+                    setIsLoaded(true)
+                    setData(reponse);
                     setUserLoaded(false);
-                    setInfo(jsonData);
+                    setInfo(reponse);
                 } catch (error) {
                     console.error("Error fetching data: ", error);
                 }
@@ -82,26 +92,35 @@ function Greet()
     }, [userloaded])
 
     if (isLoaded && !userloaded) {
-        return (
-            <div >
-                <ul>
-                    <Divider> <h1>Current Tenant</h1></Divider>
-                    <Row gutter={[4, 16]} justify={'space-evenly'}>
-                        {data.map(dat => (
-                                                
-                            <Card
-                            key={dat.id}
-                            className='form-card'
-                            onClick={() => handleUserButton(dat.id)}>
-                            <h3>{dat.name}</h3> <br/> <p>{dat.surname}</p>
-                            </Card>
+        if(data.data.length !== 0)
+        {
+            return (
+                <div >
+                    <ul>
+                        <Divider> <h1>Current Tenant</h1></Divider>
+                        <Row gutter={[4, 16]} justify={'space-evenly'}>
+                            {data.map(dat => (
+                                                    
+                                <Card
+                                key={dat.id}
+                                className='form-card'
+                                onClick={() => handleUserButton(dat.id)}>
+                                <h3>{dat.name}</h3> <br/> <p>{dat.surname}</p>
+                                </Card>
+                            
+                        ))}
+                        </Row>
                         
-                    ))}
-                    </Row>
-                    
-                </ul>
-            </div>
-        );
+                    </ul>
+                </div>
+            );   
+        }
+        else if (data.length === 0)
+        {
+            return(
+                <div><p>There are no registered user currently please add more</p></div>
+            )
+        }
     } 
     else if (!isLoaded && !userloaded) 
     {

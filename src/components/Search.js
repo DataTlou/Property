@@ -2,16 +2,29 @@ import React, { useEffect, useState } from "react";
 import { Form, Input, Button, Card, Table, Space, Result } from "antd";
 import axios from "axios";
 import Edit from "./Edit";
-import { Link, useNavigate } from "react-router-dom";
+import moment from "moment";
 
 const Search = () => {
   const [data, setData] = useState([]);
   const [StatCode, setStatCode] = useState(0);
   const { Column } = Table;
   const [isEditable, setIsEditable] = useState(false);
+  const [timeDiff, setTimeDiff] = useState("")
+
+  const getTimeDiff = () =>
+  {
+    const diff = moment(data['updatedAt']) - moment(data['createdAt'])
+    console.log(diff)
+    const days = Math.floor(diff/86400000)
+    const hours = Math.floor((diff-(86400000*days))/3600000)
+    const minutes = Math.floor((diff-((86400000*days)+(3600000*hours)))/60000)
+    const seconds = Math.floor((diff-((86400000*days)+(3600000*hours)+(minutes*60000)))/1000)
+    setTimeDiff(`${days} days, ${hours} hours,${minutes} minutes and ${seconds} seconds`)
+  }
 
   const findName = async (value) => {
-    try {
+    try 
+    {
       const res = await axios.get(
         `http://localhost:3000/users/get/name/${value["username"]}`,
         {
@@ -23,7 +36,9 @@ const Search = () => {
       setData(res.data);
       setStatCode(res.status);
       console.log(`http://localhost:3000/users/get/name/${value["username"]}`);
-    } catch (error) {
+    } 
+    catch (error) 
+    {
       setStatCode(error.response.data.statusCode);
     }
   };
@@ -39,6 +54,17 @@ const Search = () => {
       }
     });
   };
+  const HandleViewButton = () =>
+  {
+    setStatCode(2);
+    getTimeDiff();
+  }
+  const HandleBackButton = () =>
+  {
+    setStatCode(200);
+    setIsEditable(false);
+    console.log(data)
+  }
   return (
     <div>
       {StatCode === 0 && !isEditable && (
@@ -111,7 +137,7 @@ const Search = () => {
                   return (
                     <Space>
                         <a onClick={HandleEditButton}>Edit</a>
-                      
+                          <a onClick={HandleViewButton}>View</a>
                     </Space>
                   );
                 } else {
@@ -134,6 +160,11 @@ const Search = () => {
           <h1>Edit User information</h1>
           <Edit datapressed={data} />
         </Card>
+      )}
+      {StatCode === 2 && !isEditable &&(
+        <Card><p>Name: {data.name}</p>  <p>Surname: {data.surname}</p> <p>Cellphone Number: {data.cellnumber}</p> <p>Date Created: {moment(data.createdAt).format('D MMM yyyy HH:mm:ss')}</p> <p>Date updated: {moment(data.updatedAt).format('D MMM yyyy HH:mm:ss')}</p> <p>Date difference: {timeDiff}</p>
+         {/* format(data.createdAt,"Do MMMM yyyy, HH:mm:ss") */}
+        <Button onClick={HandleBackButton}>Back</Button></Card>
       )}
     </div>
   );
